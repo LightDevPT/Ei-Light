@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sounddevice
+numpy
+SpeechRecognition
+pyaudio
+jinja2
+websockets
+
+

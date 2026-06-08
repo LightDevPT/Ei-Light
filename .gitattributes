@@ -1,0 +1,35 @@
+# Git Attributes - Ei Light
+
+# Auto detect text files and normalize line endings to LF
+* text=auto
+
+# Batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Python
+*.py text eol=lf
+*.pyx text eol=lf
+
+# Web
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+
+# Audio
+*.wav binary
+*.mp3 binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary

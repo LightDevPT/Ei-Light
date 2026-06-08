@@ -1,0 +1,60 @@
+# Configuration Files (User-specific)
+config.json
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+*.txt~ (except requirements.txt)
+
+# Audio/Media (keep examples)
+audios/*.wav
+audios/*.mp3
+!audios/.gitkeep
+
+# Backups
+*.bak
+*.backup
+backups/
+
+# System
+.env.local

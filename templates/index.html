@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ei Light — Painel de Controlo</title>
+    <meta name="description" content="Painel de automação por voz e palmas para modo de desenvolvimento.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/static/images/logo.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Shutdown Overlay -->
+    <div id="shutdown-overlay" class="shutdown-overlay">
+        <div class="shutdown-card">
+            <div class="shutdown-icon-wrap">
+                <i data-lucide="power-off"></i>
+            </div>
+            <h2>Aplicativo Encerrado</h2>
+            <p>O servidor foi desligado com sucesso.<br>Pode fechar esta aba.</p>
+            <div class="shutdown-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Shell -->
+    <div class="app-shell">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="/static/images/logo.png" alt="Ei Light Logo" class="logo-img">
+                <div class="logo-text">
+                    <span class="logo-name">Ei Light</span>
+                    <span class="logo-sub">Assistente by light.dev</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-panel="control" id="nav-control">
+                    <i data-lucide="radio"></i>
+                    <span>Controlo</span>
+                </button>
+                <button class="nav-item" data-panel="actions" id="nav-actions">
+                    <i data-lucide="activity"></i>
+                    <span>Ações</span>
+                </button>
+                <button class="nav-item" data-panel="console" id="nav-console">
+                    <i data-lucide="terminal"></i>
+                    <span>Terminal</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-status">
+                <div class="status-item" id="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Desconectado</span>
+                </div>
+                <div class="status-item" id="listening-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Parado</span>
+                </div>
+                <div class="status-item" id="system-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Sistema: Ativado</span>
+                </div>
+                <div class="status-item" id="devmode-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Ei Light: Off</span>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn-power" id="btn-shutdown" title="Desligar servidor">
+                    <i data-lucide="power"></i>
+                    <span>Desligar</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- PANEL: Control -->
+            <section class="panel active" id="panel-control">
+                <div class="panel-header">
+                    <div>
+                        <h1>Controlo de Áudio</h1>
+                        <p class="panel-desc">Monitoramento em tempo real por microfone</p>
+                    </div>
+                </div>
+
+                <div class="control-layout">
+
+                    <!-- Mic Visualizer Hero -->
+                    <div class="mic-hero">
+                        <div class="mic-rings">
+                            <div class="ring ring-3" id="ring-3"></div>
+                            <div class="ring ring-2" id="ring-2"></div>
+                            <div class="ring ring-1" id="ring-1"></div>
+                            <div class="mic-core" id="visualizer-core">
+                                <div id="pulse-ring" class="pulse-ring"></div>
+                                <i data-lucide="mic" id="mic-icon"></i>
+                            </div>
+                        </div>
+                        <div class="mic-info">
+                            <div class="mic-vol-bar-wrap">
+                                <div class="mic-vol-bar" id="mic-level-bar"></div>
+                            </div>
+                            <span class="mic-vol-text" id="mic-level-text">Volume: 0%</span>
+                        </div>
+
+                        <button id="listening-toggle" class="btn-listen">
+                            <span id="toggle-icon-wrapper"><i data-lucide="play"></i></span>
+                            <span>Iniciar Escuta</span>
+                        </button>
+                    </div>
+
+                    <!-- Settings Panel -->
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <div class="settings-card-label">
+                                <i data-lucide="mic-2"></i>
+                                Dispositivo de Entrada
+                            </div>
+                            <div class="select-wrapper">
+                                <select id="mic-select">
+                                    <option value="default">Microfone Padrão do Sistema</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="settings-card-label">
+                                <i data-lucide="sliders-horizontal"></i>
+                                Sensibilidade de Palmas
+                                <span class="val-pill" id="clap-threshold-val">0.30</span>
+                            </div>
+                            <input type="range" id="clap-threshold" min="0.05" max="0.95" step="0.05" value="0.30">
+                            <span class="hint">Menor valor = mais sensível</span>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-card flex-1">
+                                <div class="settings-card-label">
+                                    <i data-lucide="hand"></i>
+                                    Palmas Necessárias
+                                </div>
+                                <select id="clap-count">
+                                    <option value="1">1 Palma</option>
+                                    <option value="2" selected>2 Palmas</option>
+                                    <option value="3">3 Palmas</option>
+                                </select>
+                            </div>
+
+                            <div class="settings-card flex-1">
+                                <div class="settings-card-label">
+                                    <i data-lucide="timer"></i>
+                                    Tempo Máximo
+                                    <span class="val-pill" id="clap-delay-val">0.8s</span>
+                                </div>
+                                <input type="range" id="clap-delay" min="0.3" max="2.0" step="0.1" value="0.8">
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="toggle-row">
+                                <div>
+                                    <div class="settings-card-label" style="margin-bottom:0">
+                                        <i data-lucide="rocket"></i>
+                                        Inicialização Automática
+                                    </div>
+                                    <span class="hint">Abrir ao ligar o computador</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="autostart-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- PANEL: Actions -->
+            <section class="panel" id="panel-actions">
+                <div class="panel-header">
+                    <div>
+                        <h1>Ações de Automação</h1>
+                        <p class="panel-desc">Gatilhos configurados para execução automática</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-add" id="btn-backup-create" title="Criar backup das ações">
+                            <i data-lucide="save"></i>
+                            Backup
+                        </button>
+                        <button class="btn-add" id="btn-backup-list" title="Ver e restaurar backups">
+                            <i data-lucide="history"></i>
+                            Restaurar
+                        </button>
+                        <button class="btn-add" id="btn-add-action">
+                            <i data-lucide="plus"></i>
+                            Nova Ação
+                        </button>
+                    </div>
+                </div>
+                <div id="actions-list" class="actions-list">
+                    <div class="empty-state">
+                        <div class="empty-icon"><i data-lucide="sparkles"></i></div>
+                        <p>Nenhuma ação configurada.</p>
+                        <span>Cria a tua primeira ação com o botão acima.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: Console -->
+            <section class="panel" id="panel-console">
+                <div class="panel-header">
+                    <div>
+                        <h1>Terminal de Logs</h1>
+                        <p class="panel-desc">Eventos em tempo real via WebSocket</p>
+                    </div>
+                    <button class="btn-outline-sm" id="clear-logs">
+                        <i data-lucide="trash-2"></i>
+                        Limpar
+                    </button>
+                </div>
+                <div class="console-wrap">
+                    <div class="console-body" id="console-logs">
+                        <div class="log-line system">[SISTEMA] Dashboard carregado. Aguardando conexão WebSocket...</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Action Modal -->
+    <div class="modal-overlay" id="action-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title">Nova Ação</h3>
+                <button class="modal-close" id="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="action-form">
+                    <input type="hidden" id="action-id">
+
+                    <div class="field">
+                        <label for="action-name">Nome da Ação</label>
+                        <input type="text" id="action-name" required placeholder="Ex: Ativar Ei Light">
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="action-trigger">Tipo de Gatilho</label>
+                            <select id="action-trigger">
+                                <option value="clap">Palmas (Claps)</option>
+                                <option value="speech">Voz (Fala)</option>
+                            </select>
+                        </div>
+                        <div class="field" id="trigger-value-container">
+                            <label for="action-trigger-value" id="trigger-value-label">Valor do Gatilho</label>
+                            <input type="text" id="action-trigger-value" required placeholder="Ex: ei light">
+                        </div>
+                    </div>
+
+                    <div class="steps-section">
+                        <div class="steps-header">
+                            <span><i data-lucide="list-ordered"></i> Passos a Executar</span>
+                            <button type="button" class="btn-outline-sm" id="btn-add-step">
+                                <i data-lucide="plus"></i> Adicionar
+                            </button>
+                        </div>
+                        <div id="steps-list" class="steps-list"></div>
+                    </div>
+
+                    <div class="audio-files-panel" style="margin-top: 1rem;">
+                        <div class="steps-header" style="justify-content: flex-start; gap: 0.5rem;">
+                            <span><i data-lucide="music"></i> Áudios Disponíveis</span>
+                        </div>
+                        <div id="audio-files-list" class="audio-files-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem; padding-top: 0.5rem;">
+                            <span class="hint">Carregando áudios...</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost" id="btn-cancel-modal">Cancelar</button>
+                        <button type="submit" class="btn-save">
+                            <i data-lucide="save"></i>
+                            Guardar Ação
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calibration Modal -->
+    <div class="modal-overlay" id="calibration-modal">
+        <div class="modal-card" style="max-width: 420px; text-align: center;">
+            <div class="modal-header">
+                <h3>Gravar Comando de Voz</h3>
+                <button class="modal-close" id="btn-close-calibration"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; gap: 1.5rem; padding: 2rem 1.5rem;">
+                <div class="calibration-status-container">
+                    <div class="mic-rings" style="margin-bottom: 1rem; position: relative; height: 140px; width: 140px; display: flex; align-items: center; justify-content: center; margin-left: auto; margin-right: auto;">
+                        <div class="ring ring-3" id="cal-ring-3" style="width: 140px; height: 140px; border-radius: 50%; border: 1px solid rgba(0,212,255,0.05); position: absolute; transition: all 0.25s ease;"></div>
+                        <div class="ring ring-2" id="cal-ring-2" style="width: 110px; height: 110px; border-radius: 50%; border: 1px solid rgba(0,212,255,0.08); position: absolute; transition: all 0.25s ease;"></div>
+                        <div class="ring ring-1" id="cal-ring-1" style="width: 80px; height: 80px; border-radius: 50%; border: 1px solid rgba(0,212,255,0.12); position: absolute; transition: all 0.25s ease;"></div>
+                        <div class="mic-core" id="cal-visualizer-core" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--violet), var(--cyan)); box-shadow: 0 0 20px var(--cyan-glow); z-index: 10; transition: all 0.25s ease;">
+                            <i data-lucide="mic" id="cal-mic-icon" style="color: white; width: 20px; height: 20px;"></i>
+                        </div>
+                    </div>
+                    <div id="calibration-state-text" style="font-size: 1.2rem; font-weight: 700; font-family: var(--font-heading); margin-top: 1rem; color: var(--text-1);">Pronto para iniciar</div>
+                    <div id="calibration-hint-text" style="font-size: 0.85rem; color: var(--text-2); margin-top: 0.5rem; min-height: 2.5rem; line-height: 1.4;">Carrega no botão abaixo para começar a gravar.</div>
+                </div>
+
+                <div id="calibration-result-container" style="display: none; width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin-top: 0.5rem; text-align: left;">
+                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em;">O sistema ouviu:</span>
+                    <div id="calibration-result-text" style="font-size: 1.15rem; font-weight: 600; color: var(--cyan); font-family: var(--font-mono); margin-top: 0.4rem; word-break: break-word;">""</div>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; width: 100%; justify-content: center; margin-top: 0.5rem;">
+                    <button class="btn-ghost" id="btn-cancel-calibration" style="flex: 1;">Cancelar</button>
+                    <button class="btn-save" id="btn-start-calibration" style="flex: 1; justify-content: center;">
+                        <i data-lucide="mic-2"></i>
+                        <span>Gravar</span>
+                    </button>
+                    <button class="btn-save" id="btn-confirm-calibration" style="flex: 1; justify-content: center; display: none; background: linear-gradient(135deg, var(--green), #0fb97a); box-shadow: 0 4px 16px rgba(16,245,154,0.2);">
+                        <i data-lucide="check"></i>
+                        <span>Confirmar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Modal -->
+    <div class="modal-overlay" id="backup-modal">
+        <div class="modal-card" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Backups de Ações</h3>
+                <button class="modal-close" id="btn-close-backup-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="backup-list" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 400px; overflow-y: auto;">
+                    <div style="text-align: center; color: var(--text-2); padding: 2rem;">
+                        <i data-lucide="loader" style="animation: spin 1s linear infinite;"></i>
+                        <p>A carregar backups...</p>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <button type="button" class="btn-ghost" id="btn-close-backup-modal-footer" style="width: 100%;">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Init Lucide icons
+        setTimeout(() => lucide.createIcons(), 50);
+
+        // Sidebar panel switching
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.panel;
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('panel-' + target).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

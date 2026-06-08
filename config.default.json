@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "Ei Light",
+    "version": "2.0",
+    "description": "Painel de automação por voz e palmas",
+    "language": "pt-PT",
+    "protected": true
+  },
+  "settings": {
+    "mic_index": null,
+    "clap_threshold": 0.3,
+    "clap_delay": 0.8,
+    "clap_count_required": 2,
+    "speech_language": "pt-PT",
+    "speech_phrases": [
+      "abrir navegador",
+      "abrir calculadora"
+    ],
+    "autostart": false
+  },
+  "actions": [
+    {
+      "id": "action_example_1",
+      "name": "Exemplo: Abrir navegador",
+      "trigger": "clap",
+      "trigger_value": "2",
+      "steps": [
+        {
+          "type": "url",
+          "value": "https://www.example.com"
+        }
+      ]
+    }
+  ]
+}
