@@ -766,7 +766,7 @@ async def save_action(action: ActionModel):
             # Edit existing action
             found = False
             for idx, act in enumerate(config["actions"]):
-                if act["id"] == action_dict["id"]:
+                if act.get("id") == action_dict["id"]:
                     config["actions"][idx] = action_dict
                     found = True
                     log_message(f"Ação editada: '{action_dict['name']}'", "system")
@@ -784,7 +784,8 @@ async def save_action(action: ActionModel):
 async def delete_action(action_id: str):
     with config_lock:
         actions = config.get("actions", [])
-        new_actions = [act for act in actions if act["id"] != action_id]
+        # Use safe access in case some actions don't have an 'id' field
+        new_actions = [act for act in actions if act.get("id") != action_id]
         if len(new_actions) == len(actions):
             raise HTTPException(status_code=404, detail="Action not found")
         config["actions"] = new_actions
@@ -829,7 +830,7 @@ async def start_calibration(body: CalibrateModel):
     action_to_calibrate = None
     with config_lock:
         for act in config.get("actions", []):
-            if act["id"] == action_id:
+            if act.get("id") == action_id:
                 action_to_calibrate = act
                 break
                 
@@ -915,7 +916,7 @@ async def trigger_action(action_id: str):
     action_to_run = None
     with config_lock:
         for act in config.get("actions", []):
-            if act["id"] == action_id:
+            if act.get("id") == action_id:
                 action_to_run = act
                 break
                 
