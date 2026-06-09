@@ -81,6 +81,17 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchConfig();
     fetchMics();
     fetchAudioFiles();
+    
+    // Enable autoplay after first user interaction
+    const enableAutoplay = () => {
+        audioPlayer.muted = false;
+        document.removeEventListener('click', enableAutoplay);
+        document.removeEventListener('keypress', enableAutoplay);
+        document.removeEventListener('touchstart', enableAutoplay);
+    };
+    document.addEventListener('click', enableAutoplay);
+    document.addEventListener('keypress', enableAutoplay);
+    document.addEventListener('touchstart', enableAutoplay);
 });
 
 // =============================================
@@ -409,11 +420,32 @@ function playAudioOnPage(filename) {
     if (!filename) return;
     const url = `${BASE_URL}/audios/${encodeURIComponent(filename)}`;
     audioPlayer.pause();
+    audioPlayer.currentTime = 0;
     audioPlayer.src = url;
     audioPlayer.load();
-    audioPlayer.play().catch((err) => {
-        logToConsole(`[AVISO] Não foi possível reproduzir áudio no browser: ${err.message}`, 'warning');
-    });
+    
+    // Ensure unmuted before playing
+    audioPlayer.muted = false;
+    
+    const playPromise = audioPlayer.play();
+    if (playPromise !== undefined) {
+        playPromise
+            .then(() => {
+                logToConsole(`[ÁUDIO] Reproduzindo: ${filename}`, 'success');
+            })
+            .catch((err) => {
+                logToConsole(`[AVISO] Não foi possível reproduzir áudio no browser: ${err.message}`, 'warning');
+                // Try again with muted first, then unmute
+                audioPlayer.muted = true;
+                audioPlayer.play().then(() => {
+                    setTimeout(() => {
+                        audioPlayer.muted = false;
+                    }, 100);
+                }).catch(() => {
+                    // Silent fail on retry
+                });
+            });
+    }
 }
 
 function logToConsole(message, level = 'info') {
@@ -457,12 +489,14 @@ function renderActions() {
 
         const isSpeech = action.trigger === 'speech';
         const triggerIcon  = isSpeech ? 'mic' : 'hand';
-        const triggerValues = action.trigger_value.split(/[,;]+/).map(v => v.trim()).filter(Boolean);
-        const triggerLabel = isSpeech
-            ? `Voz: "${triggerValues.join('" / "')}"`
-            : triggerValues.length > 1
-                ? `${triggerValues.join(' / ')} Palmas`
-                : (triggerValues[0] === '1' ? '1 Palma' : `${triggerValues[0]} Palmas`);
+        const triggerValues = (action.trigger_value || '').split(/[,;]+/).map(v => v.trim()).filter(Boolean);
+        const triggerLabel = triggerValues.length > 0
+            ? isSpeech
+                ? `Voz: "${triggerValues.join('" / "')}"`
+                : triggerValues.length > 1
+                    ? `${triggerValues.join(' / ')} Palmas`
+                    : (triggerValues[0] === '1' ? '1 Palma' : `${triggerValues[0]} Palmas`)
+            : (isSpeech ? 'Voz: (sem trigger)' : 'Palmas: (sem trigger)');
         const triggerClass = isSpeech ? 'speech-trigger' : 'clap-trigger';
 
         let stepsHtml = '<div class="action-steps-summary">';
@@ -558,7 +592,7 @@ function showModal(action = null) {
         document.getElementById('action-name').value = action.name;
         document.getElementById('action-trigger').value = action.trigger;
         updateTriggerValueField();
-        document.getElementById('action-trigger-value').value = action.trigger_value;
+        document.getElementById('action-trigger-value').value = action.trigger_value || '';
         (action.steps && action.steps.length > 0)
             ? action.steps.forEach(s => addStepRow(s.type, s.value))
             : addStepRow();
